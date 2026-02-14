@@ -1,15 +1,1 @@
-# Generated outputs / benchmarking artifacts
-scores/
-score_caches/
-*_comparison_output/
-ProSST_Max_Score/
 
-# Large data files
-*.npy
-*.pt
-*.pth
-*.pkl
-
-# Python junk
-__pycache__/
-*.pyc
