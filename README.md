@@ -1,7 +1,7 @@
 # ProtBFF: Biophysically Grounded Deep Learning for Protein–Protein ΔΔG Prediction
 
 <p align="center">
-  <em>Feldman, Maechler, Wang & Shakhnovich — Cold Spring Harbor Laboratory, 2025</em>
+  <em>Feldman, Maechler, Wang & Shakhnovich — bioRxiv, 2025</em>
 </p>
 
 ---
