@@ -1,0 +1,180 @@
+{
+    "reference_chains": [
+        "A",
+        "P"
+    ],
+    "model_chains": [
+        "A",
+        "P"
+    ],
+    "chem_groups": [
+        [
+            "A"
+        ],
+        [
+            "P"
+        ]
+    ],
+    "chem_mapping": [
+        [
+            "A"
+        ],
+        [
+            "P"
+        ]
+    ],
+    "mdl_chains_without_chem_mapping": [],
+    "chain_mapping": {
+        "A": "A",
+        "P": "P"
+    },
+    "aln": [
+        ">reference:A\nEYAVEKIIDRRVRKGMVEYYLKWKGYPETENTWEPENNLDCQDLIQQYEASR\n>model:A\nEYTVEKIIDRRVRKGMVEYYLKWKGYPETENTWEPENNLDCQDLIQQYEASR",
+        ">reference:P\nQTARKS\n>model:P\nQTARKS"
+    ],
+    "inconsistent_residues": [
+        "A.3.-A.3."
+    ],
+    "lddt": 0.99,
+    "local_lddt": {
+        "A.1.": 0.982,
+        "A.2.": 0.986,
+        "A.3.": 0.988,
+        "A.4.": 0.994,
+        "A.5.": 0.992,
+        "A.6.": 0.994,
+        "A.7.": 0.997,
+        "A.8.": 0.997,
+        "A.9.": 0.998,
+        "A.10.": 0.999,
+        "A.11.": 1.0,
+        "A.12.": 1.0,
+        "A.13.": 1.0,
+        "A.14.": 1.0,
+        "A.15.": 1.0,
+        "A.16.": 1.0,
+        "A.17.": 1.0,
+        "A.18.": 1.0,
+        "A.19.": 0.997,
+        "A.20.": 1.0,
+        "A.21.": 0.998,
+        "A.22.": 0.994,
+        "A.23.": 0.995,
+        "A.24.": 0.794,
+        "A.25.": 0.994,
+        "A.26.": 0.992,
+        "A.27.": 0.989,
+        "A.28.": 0.992,
+        "A.29.": 1.0,
+        "A.30.": 0.997,
+        "A.31.": 0.997,
+        "A.32.": 0.998,
+        "A.33.": 1.0,
+        "A.34.": 0.998,
+        "A.35.": 0.999,
+        "A.36.": 0.998,
+        "A.37.": 0.999,
+        "A.38.": 0.998,
+        "A.39.": 0.993,
+        "A.40.": 0.983,
+        "A.41.": 0.988,
+        "A.42.": 0.992,
+        "A.43.": 0.986,
+        "A.44.": 0.995,
+        "A.45.": 0.997,
+        "A.46.": 0.948,
+        "A.47.": 0.944,
+        "A.48.": 0.996,
+        "A.49.": 0.995,
+        "A.50.": 0.986,
+        "A.51.": 0.986,
+        "A.52.": 0.99,
+        "P.1.": 0.981,
+        "P.2.": 0.96,
+        "P.3.": 0.99,
+        "P.4.": 0.993,
+        "P.5.": 0.991,
+        "P.6.": 0.999
+    },
+    "model_clashes": [],
+    "model_bad_bonds": [],
+    "model_bad_angles": [],
+    "reference_clashes": [],
+    "reference_bad_bonds": [],
+    "reference_bad_angles": [],
+    "ilddt": 0.986,
+    "arguments": {
+        "model": "/n/netscratch/shakhnovich_lab/Lab/jonathanfeldman/DDAffinity/data/SKEMPI2/SKEMPI2_cache/SKEMPI2_cache/optimized/5834_1KNE.pdb",
+        "reference": "/n/netscratch/shakhnovich_lab/Lab/jonathanfeldman/DDAffinity/data/SKEMPI2/SKEMPI2_cache/SKEMPI2_cache/wildtype/5834_1KNE.pdb",
+        "output": "/n/netscratch/shakhnovich_lab/Lab/jonathanfeldman/AF3Complex/lddt_dir/5834_1KNE_ost_output.json",
+        "model_format": null,
+        "reference_format": null,
+        "model_biounit": null,
+        "reference_biounit": null,
+        "residue_number_alignment": false,
+        "enforce_consistency": false,
+        "dump_structures": false,
+        "dump_suffix": "_compare_structures",
+        "fault_tolerant": false,
+        "chain_mapping": null,
+        "lddt": true,
+        "local_lddt": true,
+        "aa_local_lddt": false,
+        "bb_lddt": false,
+        "bb_local_lddt": false,
+        "ilddt": true,
+        "cad_score": false,
+        "local_cad_score": false,
+        "cad_exec": null,
+        "usalign_exec": null,
+        "oum": false,
+        "qs_score": false,
+        "dockq": false,
+        "dockq_capri_peptide": false,
+        "ics": false,
+        "ics_trimmed": false,
+        "ips": false,
+        "ips_trimmed": false,
+        "rigid_scores": false,
+        "patch_scores": false,
+        "tm_score": false,
+        "lddt_no_stereochecks": false,
+        "n_max_naive": 40320,
+        "dump_aligned_residues": false,
+        "dump_pepnuc_alns": false,
+        "dump_pepnuc_aligned_residues": false,
+        "min_pep_length": 6,
+        "min_nuc_length": 4,
+        "verbosity": 2,
+        "lddt_add_mdl_contacts": false,
+        "lddt_inclusion_radius": 15.0,
+        "chem_group_seqid_thresh": 95.0,
+        "chem_map_seqid_thresh": 70.0,
+        "seqres": null,
+        "trg_seqres_mapping": null
+    },
+    "log": [
+        {
+            "message": "Loading data",
+            "level": "Script"
+        },
+        {
+            "message": "Cleaning up input structures",
+            "level": "Script"
+        },
+        {
+            "message": "Computing chain mapping",
+            "level": "Script"
+        },
+        {
+            "message": "Computing all-atom LDDT",
+            "level": "Script"
+        },
+        {
+            "message": "Computing all-atom iLDDT",
+            "level": "Script"
+        }
+    ],
+    "ost_version": "2.11.0",
+    "status": "SUCCESS"
+}
