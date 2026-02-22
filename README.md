@@ -12,7 +12,7 @@
 
 ## Overview
 
-![ProtBFF Overview](figures/overview.png)
+![ProtBFF Overview](protbff_schematic.png)
 
 ---
 
