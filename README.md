@@ -1,30 +1,31 @@
-# ProtBFF: A General Framework for Injecting Biophysical Priors into Protein Embeddings
+# ProtBFF: Biophysically Grounded Deep Learning for Protein–Protein ΔΔG Prediction
 
-**Feldman et al.**
-
----
-
-> **ProtBFF** (**Prot**ein **B**iophysical **F**eature **F**ramework) is an encoder-agnostic module that enriches embedding-based predictors with explicit biophysical features.
+<p align="center">
+  <em>Feldman, Maechler, Wang & Shakhnovich — Cold Spring Harbor Laboratory, 2025</em>
+</p>
 
 ---
 
-## Figure
+> **ProtBFF** (**Prot**ein **B**iophysical **F**eature **F**ramework) is an encoder-agnostic module that injects five interpretable biophysical priors into residue-level representations via cross-embedding attention — consistently improving ΔΔG prediction under rigorous homology-based evaluation.
 
-<!-- Replace the path below with your figure once uploaded to the repo -->
+---
+
+## Overview
+
 ![ProtBFF Overview](figures/overview.png)
 
 ---
 
 ## Installation
 
-### 1. Clone the repository
+**1. Clone the repository**
 
 ```bash
 git clone https://github.com/Jfeldman34/ProtBFF.git
 cd ProtBFF
 ```
 
-### 2. Set up the environment
+**2. Set up the environment**
 
 Conda with Python 3.10 is recommended:
 
@@ -38,7 +39,7 @@ pip install -r requirements.txt
 
 ## Benchmarking
 
-### SKEMPI Benchmarking (ProSST + ProtBFF)
+### SKEMPI (ProSST + ProtBFF)
 
 To run the SKEMPI benchmark with the ProSST + ProtBFF model:
 
@@ -50,11 +51,9 @@ python evaluate_saved_models.py \
     --output_dir "."
 ```
 
-### Antibody Benchmarking (ProSST + ProtBFF)
+### Antibody Benchmarks (ProSST + ProtBFF)
 
-To run the ProSST-enhanced antibody benchmarks:
-
-**9LYP:**
+**9LYP**
 
 ```bash
 python antibodies_protbff_benchmarking.py \
@@ -66,7 +65,7 @@ python antibodies_protbff_benchmarking.py \
     --random_seed 42
 ```
 
-**7W9I:**
+**7W9I**
 
 ```bash
 python antibodies_protbff_benchmarking.py \
@@ -175,6 +174,14 @@ All individual score calculation scripts are located in `data_pipeline/scores/`.
 
 If you use ProtBFF in your work, please cite:
 
-```
-Feldman et al. "A General Framework for Injecting Biophysical Priors into Protein Embeddings." (2025)
+```bibtex
+@article{Feldman2025.12.23.696257,
+  author    = {Feldman, Jonathan and Maechler, Antoine and Wang, Dianzhuo and Shakhnovich, Eugene},
+  title     = {Biophysically Grounded Deep Learning Improves Protein--Protein {$\Delta\Delta G$} Prediction},
+  journal   = {bioRxiv},
+  year      = {2025},
+  doi       = {10.64898/2025.12.23.696257},
+  url       = {https://www.biorxiv.org/content/early/2025/12/25/2025.12.23.696257},
+  publisher = {Cold Spring Harbor Laboratory}
+}
 ```
