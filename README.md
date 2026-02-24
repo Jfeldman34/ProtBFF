@@ -1,4 +1,4 @@
-# ProtBFF: Biophysically Grounded Deep Learning for Protein–Protein ΔΔG Prediction
+# ProtBFF: A General Framework for Injecting Biophysical Priors into Protein Embeddings
 
 <p align="center">
   <em>Feldman, Maechler, Wang & Shakhnovich — bioRxiv, 2025</em>
@@ -175,13 +175,16 @@ All individual score calculation scripts are located in `data_pipeline/scores/`.
 If you use ProtBFF in your work, please cite:
 
 ```bibtex
-@article{Feldman2025.12.23.696257,
-  author    = {Feldman, Jonathan and Maechler, Antoine and Wang, Dianzhuo and Shakhnovich, Eugene},
-  title     = {Biophysically Grounded Deep Learning Improves Protein--Protein {$\Delta\Delta G$} Prediction},
-  journal   = {bioRxiv},
-  year      = {2025},
-  doi       = {10.64898/2025.12.23.696257},
-  url       = {https://www.biorxiv.org/content/early/2025/12/25/2025.12.23.696257},
-  publisher = {Cold Spring Harbor Laboratory}
+@article {Feldman2025.12.23.696257,
+	author = {Feldman, Jonathan and Maechler, Antoine and Wang, Dianzhuo and Shakhnovich, Eugene},
+	title = {A General Framework for Injecting Biophysical Priors into Protein Embeddings},
+	elocation-id = {2025.12.23.696257},
+	year = {2026},
+	doi = {10.64898/2025.12.23.696257},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2026/02/23/2025.12.23.696257},
+	eprint = {https://www.biorxiv.org/content/early/2026/02/23/2025.12.23.696257.full.pdf},
+	journal = {bioRxiv}
 }
+
 ```
