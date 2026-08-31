@@ -7,3 +7,10 @@ data/optimized_embeddings_esm3/
 data/wildtype_embeddings_esm3/
 model_benchmarking/score_caches/skempi_esm2_score_cache.npz
 model_benchmarking/score_caches/skempi_esm3_score_cache.npz
+data/wildtype_embeddings_esmc/
+data/optimized_embeddings_esmc/
+data/wildtype_embeddings_saprot/
+data/optimized_embeddings_saprot/
+data/merged_output_esmc/
+model_benchmarking/score_caches/skempi_esmc_score_cache.npz
+tuning_v1/out/*.log

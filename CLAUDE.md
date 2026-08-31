@@ -814,12 +814,22 @@ verify the run first ("sure about the running" → smoke test, THEN Modal).
 - **Job 43089639** (gpu, afterok:43089638): `protbff_arch.py --embed_dim 1280 --variants antisym,dual`
   → `tuning_v1/out/arch_esm2.json`. Compare vs paper ESM2 0.194→0.451 (leaky split).
 
-### Baselines (bare encoder, no ProtBFF) — `tuning_v1/baseline_mva.py`
+### Baselines (bare encoder, no ProtBFF) — `tuning_v1/baseline_mva.py` — ALL DONE
 Reads a merged_output dir, max-pools the per-residue embedding diff (no scores), ridge [D|S] on MVA
-folds (alpha val-selected). **ProSST baseline DONE: mean P=0.2757, S=0.2467, AUROC=0.6053, pooled P=0.150.**
-vs ProSST+ProtBFF dual 0.451 → **ProtBFF gain on honest split = +0.175 mean P** (bigger than the paper's
-leaky-split +0.087; priors help more when you can't memorize homologs — strengthens the thesis).
-ESM2/ESM3 baselines: run the same script on merged_output_esm2/esm3 once those merges finish.
+folds (alpha val-selected). Output `tuning_v1/out/esm_baselines.txt` + ProSST inline.
+
+| encoder baseline | mean P | mean S | AUROC | pooled P | paper (leaky) |
+|---|---|---|---|---|---|
+| ProSST | 0.276 | 0.247 | 0.605 | 0.150 | 0.428 |
+| ESM2   | 0.268 | 0.240 | 0.617 | 0.187 | 0.194 |
+| ESM3   | 0.102 | 0.088 | 0.524 | 0.098 | 0.159 |
+
+Honest ordering ProSST≈ESM2≫ESM3. ESM3 embeddings alone ~useless on honest split (AUROC 0.52≈chance).
+ProSST gain from ProtBFF (dual) = 0.451−0.276 = **+0.175** (vs paper leaky +0.087).
+**CAVEAT (matters for the paper's "Baseline" column):** these are ridge[D|S] (INCLUDE the symmetric part)
+→ a STRONGER/different construction than the paper's encoder+antisym-MLP baseline (note ESM2 0.268 > paper
+0.194 because of this). For a like-for-like Table-1 baseline, instead run the arch with scores=1 (uniform)
++ antisym readout. Current numbers are the right ballpark, not a like-for-like paper-baseline reproduction.
 
 ### ProMIM — CONFIRMED tractable on MVA (was the feared blocker)
 - Reads folds via `train_complex_ids.txt`/`test_complex_ids.txt` (src/datasets/skempi.py:132) = MVA's
@@ -846,10 +856,46 @@ site-packages gutted → NOT repairable, needs full rebuild.
   `promim_mva/` code+data+checkpoints to a volume, run 10-fold). Sidesteps the purged cluster env.
   All MVA wiring already done in `promim_mva/` (fold_dir→MVA, smoke config, PDBs extracted). DECISION PENDING.
 
+### ESM3 + ProtBFF RESULT (arch_esm3.json, cluster job 43086175, N=6567) — HEADLINE-GRADE
+| ESM3 | meanP | meanS | poolP | poolS |
+|---|---|---|---|---|
+| bare baseline | 0.102 | 0.088 | 0.098 | 0.071 |
+| +ProtBFF antisym (paper arch) | **0.385** | 0.381 | 0.325 | 0.350 |
+| +ProtBFF dual | **0.415** | 0.420 | 0.341 | 0.411 |
+ProtBFF lifts ESM3 **0.10 → 0.39–0.42 = +0.28–0.31 mean P** — LARGEST gain of any encoder. Raw ESM3
+embeddings near-useless (AUROC 0.52≈chance); priors unlock them. Honest 0.385 > paper leaky 0.362 → number
+IMPROVES under correction. Strongest argument that priors matter most where the encoder is weakest.
+
+### COMPLETE encoder × ProtBFF matrix (honest MVA-60, mean-of-folds Pearson, 5-seed)
+| encoder | bare baseline | +ProtBFF antisym | +ProtBFF dual | best gain |
+|---|---|---|---|---|
+| ProSST | 0.276 | 0.422 | **0.451** | +0.175 |
+| ESM2 | 0.268 | **0.427** | 0.414 | +0.159 |
+| ESM3 | 0.102 | 0.385 | **0.415** | +0.313 |
+(ProSST antisym/dual from arch.json; ESM2 arch_esm2.json Modal; ESM3 arch_esm3.json cluster N=6567)
+KEY: (1) ProtBFF levels ALL encoders to ~0.42-0.45 despite baselines 0.10-0.28; largest gain where encoder
+weakest. (2) **Dual readout is encoder-DEPENDENT**: helps ProSST (+0.029) & ESM3 (+0.030), slightly HURTS
+ESM2 (−0.013, Wilcoxon p=0.625 n.s.). Not a universal win → per-encoder choice.
+
+### FoldX RESULT (DONE) — `tuning_v1/out/foldx_mva.json`
+Precomputed FoldX preds existed: `jonathanfeldman/DDAffinity_up-master/foldx/results_all.csv`
+(6631 rows, complex=#Pdb unique, ddG_pred). FoldX unsupervised → leakage-immune, split-independent;
+just per-fold MVA corr. **mean-of-folds P=0.3587 S=0.3075 AUROC=0.639; pooled P=0.3199 S=0.284.**
+- **pooled 0.320 EXACTLY matches paper's FoldX 0.320 → paper's FoldX number is POOLED** (metric-convention clue).
+- FoldX (physics, no training, no leakage) is COMPETITIVE on honest split: mean-of-folds 0.359 > DDAffinity
+  0.340, ≈ RDE 0.393. Great paper point (honest split reveals physics baseline ≈ trained deep models).
+
+### RDE-Linear — IN PROGRESS (Modal extraction, job byy0b5zyl, app rde-linear)
+Port: `rde_linear_mva/` (RDE-PPI-main copy) + data (skempi_v2.csv, 690 PDBs symlinked, SIM.pt→RDE.pt).
+`experiments/modal_rde_linear.py` runs `rde.linear.entropy` on A10G → entropy.pkl (per-mutation bound/unbound
+entropies). Then LOCAL calibration: `convert_results_to_table` (calibrate.py) → feature table → ridge per
+MVA fold. Expect ProMIM-style version fixes on first run. Feature cols: H_lig/lignbr/rec _{ub,b}_{wt,mt}.
+
 ### Still TODO
-1. **ProMIM** — BLOCKED on env rebuild (see above). Modal container is the path; needs user go-ahead (real effort).
-2. ESM2/ESM3 baselines (after merges); ESM2/ESM3+ProtBFF — ESM2 cache DONE, arch about to run; ESM3 cache finishing.
-3. RDE-Linear (Modal embeds), FoldX (compute pass) — weak baselines, external deps, lowest priority.
+1. **ProMIM** — running PARALLEL (10 folds, Modal, job bmxgs83t3, app promim-mva). Serial was ~20h>timeout;
+   parallel = ~2h. Fold 0 (serial) gave val Pearson ~0.36. Each fold saves own CSV → combine + metrics.
+2. **RDE-Linear** — extraction running (see above), then local calibrate.
+3. Then: DRAFT Table 1 replacement for Overleaf (user wants results FULLY updated).
 
 ## 2026-08-30 — DRAFT-UPDATE STRATEGY (honest split) — agreed plan, minimal-modification
 
