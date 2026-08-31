@@ -14,3 +14,5 @@ data/optimized_embeddings_saprot/
 data/merged_output_esmc/
 model_benchmarking/score_caches/skempi_esmc_score_cache.npz
 tuning_v1/out/*.log
+data/merged_output_saprot/
+model_benchmarking/score_caches/skempi_saprot_score_cache.npz
