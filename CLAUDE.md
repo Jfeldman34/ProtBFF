@@ -891,11 +891,39 @@ Port: `rde_linear_mva/` (RDE-PPI-main copy) + data (skempi_v2.csv, 690 PDBs syml
 entropies). Then LOCAL calibration: `convert_results_to_table` (calibrate.py) → feature table → ridge per
 MVA fold. Expect ProMIM-style version fixes on first run. Feature cols: H_lig/lignbr/rec _{ub,b}_{wt,mt}.
 
-### Still TODO
-1. **ProMIM** — running PARALLEL (10 folds, Modal, job bmxgs83t3, app promim-mva). Serial was ~20h>timeout;
-   parallel = ~2h. Fold 0 (serial) gave val Pearson ~0.36. Each fold saves own CSV → combine + metrics.
-2. **RDE-Linear** — extraction running (see above), then local calibrate.
-3. Then: DRAFT Table 1 replacement for Overleaf (user wants results FULLY updated).
+## 2026-08-31 — COMPLETE honest-split (MVA-60) benchmark — ALL MODELS DONE
+
+**mean-of-folds Pearson (5-seed for ProtBFF; per-fold for competitors), MVA-60:**
+| model | bare baseline | +ProtBFF antisym | +ProtBFF dual | AUROC | paper (leaky) |
+|---|---|---|---|---|---|
+| **ESM-C** | 0.439 | 0.444 | **0.469** | — | new |
+| **SaProt** | 0.438 | 0.413 | **0.459** | — | new |
+| ProSST | 0.276 | 0.422 | **0.451** | 0.668 | 0.514 |
+| ESM2 | 0.268 | **0.427** | 0.414 | — | 0.451 |
+| ESM3 | 0.102 | 0.385 | **0.415** | — | 0.362 |
+| ProMIM (competitor) | — | — | 0.399 | 0.675 | 0.486 |
+| RDE (competitor) | — | — | 0.393 | 0.651 | 0.480 |
+| FoldX (competitor) | — | — | 0.359 | 0.639 | 0.320(pooled) |
+| DDAffinity (competitor) | — | — | 0.340 | 0.631 | 0.485 |
+| RDE-Linear (competitor) | — | — | 0.148 | 0.554 | 0.369 |
+
+Files: arch_{esmc,saprot,esm2,esm3}.json, arch.json (ProSST), promim_mva.json, foldx_mva.json,
+rde_linear_mva.json, esm_baselines.txt. All committed to private/mva-honest-benchmarks.
+
+**FINAL STORY (holds strongly):**
+1. Every ProtBFF encoder (0.41–0.47) beats every competitor (0.15–0.40). The two NEW encoders
+   (ESM-C 0.469, SaProt 0.459) are the TOP TWO, both > paper's ProSST.
+2. Honest split DEFLATES every trained competitor ~0.09–0.34 (ProMIM 0.486→0.399, DDAffinity
+   0.485→0.340, RDE-Linear 0.369→0.148) — confirms leakage thesis. Leakage-immune FoldX RISES
+   (0.320→0.359); structure-aware ProtBFF encoders hold/rise (ESM3 0.362→0.415).
+3. ProtBFF gain INVERSELY proportional to encoder strength: ESM3 +0.31, ProSST +0.175, ESM2 +0.159,
+   ESM-C +0.03, SaProt (bare 0.438→0.459). All converge to a ~0.42–0.47 ceiling.
+4. Dual (symmetry-removed) readout: helps ProSST/ESM3/ESM-C/SaProt (+0.03–0.05), slightly hurts ESM2;
+   never significant at n=10 (closest SaProt Spearman p=0.064). Encoder-dependent, not universal.
+
+### NEXT: DRAFT Table 1 replacement for Overleaf (user wants results FULLY updated). Per strategy:
+paper's antisym numbers OR note dual as separate contribution; mean-of-folds convention; \revised{} markup;
+show diff before push. NOTE new encoders (ESM-C, SaProt) are ADDITIONS beyond the paper's original 3.
 
 ## 2026-08-30 — DRAFT-UPDATE STRATEGY (honest split) — agreed plan, minimal-modification
 
