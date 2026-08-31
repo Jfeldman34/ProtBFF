@@ -1,0 +1,47 @@
+{
+  "A paper+std+ilw0.2   (my baseline)": {
+    "mean_pearson": 0.33519667387008667,
+    "mean_spearman": 0.3151063053220558,
+    "mean_val_pearson": 0.40477901697158813,
+    "pooled_pearson": 0.24546094238758087,
+    "pooled_spearman": 0.26675978464751854,
+    "pooled_pearson_cal": 0.22230371832847595,
+    "pooled_spearman_cal": 0.25173029280620296
+  },
+  "B paper+NOstd+ilw0   (~notebook)  ": {
+    "mean_pearson": 0.3891238272190094,
+    "mean_spearman": 0.3601855451689313,
+    "mean_val_pearson": 0.4589594900608063,
+    "pooled_pearson": 0.269443541765213,
+    "pooled_spearman": 0.30567055070411914,
+    "pooled_pearson_cal": 0.26687026023864746,
+    "pooled_spearman_cal": 0.30324481518729074
+  },
+  "C paper+NOstd+ilw0.2             ": {
+    "mean_pearson": 0.3769175708293915,
+    "mean_spearman": 0.3498856740645112,
+    "mean_val_pearson": 0.45036810636520386,
+    "pooled_pearson": 0.26326125860214233,
+    "pooled_spearman": 0.29596760473828426,
+    "pooled_pearson_cal": 0.25470924377441406,
+    "pooled_spearman_cal": 0.29039749147248195
+  },
+  "D tuned+NOstd+ilw0   (reg gains) ": {
+    "mean_pearson": 0.37708109617233276,
+    "mean_spearman": 0.33365185188803215,
+    "mean_val_pearson": 0.45900216698646545,
+    "pooled_pearson": 0.23598134517669678,
+    "pooled_spearman": 0.26465589398913447,
+    "pooled_pearson_cal": 0.24917159974575043,
+    "pooled_spearman_cal": 0.2732888709126958
+  },
+  "E tuned+NOstd+ilw0.2             ": {
+    "mean_pearson": 0.3825829029083252,
+    "mean_spearman": 0.3395767782289556,
+    "mean_val_pearson": 0.45642703771591187,
+    "pooled_pearson": 0.2501199245452881,
+    "pooled_spearman": 0.27505282826335875,
+    "pooled_pearson_cal": 0.24258947372436523,
+    "pooled_spearman_cal": 0.2703047994542833
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "lr": 0.0002,
+  "weight_decay": 0.01,
+  "batch_size": 64,
+  "num_hidden": 2,
+  "ilddt_weight": 0.2,
+  "loss": "huber",
+  "dropout_scale": 0.7
+}

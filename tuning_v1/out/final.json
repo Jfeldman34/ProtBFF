@@ -1,0 +1,24 @@
+{
+  "baseline": {
+    "mean_pearson": 0.33519667387008667,
+    "mean_spearman": 0.3151063053220558,
+    "mean_val_pearson": 0.40477901697158813,
+    "pooled_pearson": 0.24546094238758087,
+    "pooled_spearman": 0.26675978464751854,
+    "pooled_pearson_cal": 0.24546094238758087,
+    "pooled_spearman_cal": 0.26675978464751854
+  },
+  "tuned": {
+    "mean_pearson": 0.3481578528881073,
+    "mean_spearman": 0.3099279129016,
+    "mean_val_pearson": 0.40629807114601135,
+    "pooled_pearson": 0.2665275037288666,
+    "pooled_spearman": 0.28860993014042113,
+    "pooled_pearson_cal": 0.22837555408477783,
+    "pooled_spearman_cal": 0.24807202651456303
+  },
+  "tuned_rows": [
+    {
+      "fold": 0,
+      "n": 1955,
+      "pearson": 

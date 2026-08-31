@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+slurm_logs/
+data/merged_output_esm2/
+data/merged_output_esm3/
+data/optimized_embeddings_esm3/
+data/wildtype_embeddings_esm3/
+model_benchmarking/score_caches/skempi_esm2_score_cache.npz
+model_benchmarking/score_caches/skempi_esm3_score_cache.npz
