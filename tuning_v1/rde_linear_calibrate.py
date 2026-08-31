@@ -74,7 +74,9 @@ def main():
         pt += list(y[te]); pp += list(p)
     out = dict(mean_r=float(np.nanmean(fr)), mean_s=float(np.nanmean(fs)),
                mean_auroc=float(np.nanmean(fa)), pooled_r=float(pearsonr(pt, pp)[0]),
-               pooled_s=float(spearmanr(pt, pp)[0]), n=int(ok.sum()))
+               pooled_s=float(spearmanr(pt, pp)[0]), n=int(ok.sum()),
+               sd_r=float(np.nanstd(fr)), sd_s=float(np.nanstd(fs)),
+               fold_r=[float(x) for x in fr], fold_s=[float(x) for x in fs])
     import json; json.dump(out, open(args.out, 'w'), indent=2)
     print(f"RDE-Linear MVA-60: mean-of-folds P={out['mean_r']:.4f} S={out['mean_s']:.4f} "
           f"AUROC={out['mean_auroc']:.4f} | pooled P={out['pooled_r']:.4f}")
