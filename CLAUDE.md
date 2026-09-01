@@ -955,3 +955,116 @@ Hold ensemble/AUROC as SI/footnote at most (additions = over-modification risk).
 ### Live jobs (all verified in squeue at submit)
 43086164 esm3_cache(R) · 43086166 oof_dual(R, slow ~26min) · 43086175 esm3_arch(PD,dep) ·
 43089638 esm2_cache(PD) · 43089639 esm2_arch(PD,dep). Ensemble waiter still armed on oof_dual.
+
+## 2026-08-31 — ilDDT auxiliary-loss ablation on ESM-C (job 43418992)
+
+New `tuning_v1/ilddt_ablation.py` + `run_ilddt_esmc.sbatch`. Isolates the ilDDT aux loss on
+ESM-C + dual readout, honest MVA-60, clean protocol. Two arms, same folds/seeds:
+- `full` (ilddt_weight=0) — must reproduce ablation_esmc_s1 full = 0.469/0.407 (sanity)
+- `full_ilddt` (ilddt_weight=0.2, the paper's setting)
+Delta = effect of adding the aux loss. Prior ProSST-antisym finding: aux mildly HARMFUL
+(0.389 w/o vs 0.377 w/). ESM-C cache ilDDT: mean 0.975, sd 0.053 (real, non-constant).
+Output `tuning_v1/out/ilddt_esmc.json`. Job 43418992 gpu_test, verified PENDING at submit.
+
+## 2026-08-31 — Consistency pass pushed + SI symmetry chapter + loss sweep
+
+### Overleaf consistency pass (pushed 1d11d1f..259f211)
+Committed to the DUAL (symmetric-aware) readout as THE model:
+- Methods architecture: replaced strict-antisym eq with dual `g_a(h_f-h_r)+g_s(h_f+h_r)`,
+  h_f/h_r defined, physical caveat stated; added a Results sentence grounding it.
+- Table 1 ablation label "Full ProSST" -> "Full ESM-C" (main ablation is ESM-C now).
+- Fixed Pearson/Spearman symbols everywhere (r=Pearson, rho=Spearman) — was backwards.
+- "eight" -> "ten" baseline models; "two types of models" -> five encoders (ESM-C, SaProt).
+- Caveat on leaky ESM2 size-sweep (original split; relative trend only).
+- Verified: brace balance 0, tectonic compiles to 15pp (microtype line 97 is a pre-existing
+  tectonic-only quirk, Overleaf handles it). Earlier ablation-text push = 74434f1..1d11d1f.
+
+### SI symmetry chapter (Task from user: "add a SI chapter to discuss this")
+Justification for the new head was ASSERTED not shown. Adding model-free evidence.
+- `tuning_v1/sym_probe.py`: ridge on D=Xf-Xr, S=(Xf+Xr)/2, [D|S], alpha val-selected per
+  fold (cluster-aware val, refit train+val), ddG AND ilDDT targets, ProSST + ESM-C.
+- Job 43425912 (shakhnovich CPU 16G) -> sym_probe_{prosst,esmc}.json. PENDING at submit.
+- SI LaTeX draft ready at scratchpad/si_symmetry.tex (Table S3), numbers <...> to fill from
+  the job. Prior fixed-alpha probe: D 0.355, S 0.418, [D|S] 0.444 (S is the STRONGER half).
+
+### Loss-function sweep (Task: "play with the loss function")
+`tuning_v1/loss_experiments.py` (dual readout, ProSST, MVA-60, clean protocol, 5 seeds):
+mse | huber | mae | pearson(λ0.5,1.0) | corr_only | rank(pairwise margin) |
+ilddt2_antisymhead | ilddt2_dualhead. KEY: made ilddt_predictor readout configurable
+(`c['ilddt_readout']`, default antisym) in protbff_arch.py — the ilDDT head was HARDWIRED
+antisym, so ilDDT (symmetric target) was dead even in the dual model. ilddt2_dualhead is the
+real revival test. Motivation: eval metric IS correlation, not MSE -> test corr/rank losses.
+- Job run_loss_prosst.sbatch: gpu_test 24G, embed_dim 768. NOT yet submitted — gpu_test has a
+  2-job cap and both ablation jobs (43418992 ilddt, 43420574 baselines) occupy it. Background
+  task btoknex5i auto-submits it when a slot frees + prints ablation results.
+- Smoke-tested all loss modes on CPU (ProSST slice, 2 epochs): all finite, OK.
+
+### Ablation rows still pending in Table 1 (filled by running jobs)
+ilDDT (43418992: full ilw0 vs full_ilddt ilw0.2, dual, ESM-C) + all-scores=1/embeddings=1
+(43420574, ESM-C). Table rows show "--" + caption "being re-evaluated" until they land.
+NOTE loss-sweep ilddt2 result will inform whether to revive the aux loss / rewrite the loss
+Methods narrative (currently says ilDDT "improves generalization" but reported models use ilw=0).
+
+## 2026-08-31 (cont) — ilDDT + ridge-probe results; loss sweep -> ESM-C; DMS retrain launched
+
+### ilDDT ablation (ESM-C, dual, job 43418992 DONE)
+full (ilw=0): meanP 0.4690 / meanS 0.4069 (reproduces ESM-C dual exactly = sanity OK).
+full_ilddt (ilw=0.2): meanP 0.4710 / meanS 0.4003. Δ = +0.002 P / -0.007 S -> NEUTRAL.
+So with the dual readout the ilDDT aux loss is a wash (was mildly harmful under antisym).
+Uses the ANTISYM ilDDT head; the DUAL-ilDDT-head revival test is in the loss sweep (ilddt2_dualhead).
+
+### Ridge probe (SI evidence) — ProSST DONE (sym_probe_prosst.json)
+| target | D(antisym) | S(sym) | [D|S] |  (mean Pearson)
+|ddG  | 0.350 | 0.420 | 0.434 |
+|ilDDT| 0.283 | 0.511 | 0.502 |
+S > D for ddG; ilDDT far more predictable from S -> model-free proof the antisym readout
+discards the larger half + ilDDT dead through antisym. ESM-C probe still running.
+
+### Loss sweep -> switched to ESM-C (user steer "do sota which is esmc")
+modal_loss_experiments.py now ESM-C cache (1152-d) -> loss_esmc.json. Killed the ProSST Modal
+run (bqx81lcxn), relaunched ESM-C (task b6gja02hz). Variants: mse/huber/mae/pearson(.5,1)/
+corr_only/rank/ilddt2_antisymhead/ilddt2_dualhead. protbff_arch.py: ilddt_predictor readout
+now configurable (c['ilddt_readout'], default antisym) so the dual-ilDDT-head revival is testable.
+
+### Figure work (user: recreate Fig 2 + Fig 3; picked "add MVA-60 pt" / "retrain dual")
+- Fig 3 DMS few-shot: tuning_v1/dms_fewshot.py builds scaled(ProtBFF dual)+bare(ridge[D|S])
+  from merged DMS dirs, same rows. ALL 5 merged dirs validated by ddG-overlap=1.00:
+  ace2=merged_scores(ProSST)+bloom_esm2_embeddings_merged(ESM2); 9lyp=9lyp_merged+9lyp_esm2_merged;
+  7kmg=7kmg_merged(ProSST only, no ESM2). Job 43442210 (gpu_test) -> tuning_v1/out/dms/*.json.
+  NOTE: DMS has ONLY ProSST+ESM2 embeddings; asked user whether to also generate ESM-C DMS.
+- Fig 2: add honest MVA-60 point to panel A (decided). Not yet built.
+- backbone->encoder text fix pushed (896f8b7). Overleaf head now at 896f8b7.
+
+## 2026-09-01 — Figure 2 + 3 recreation on MVA; KEY bare-baseline correction
+
+### Bare-baseline correction (IMPORTANT — traced from Jonathan's outputs)
+Original DMS "bare" (Fig 3 dashed) = SAME ProtBFF architecture on UNSCALED embeddings
+(biophysical scaling OFF), NOT a linear probe. Evidence:
+`jonathanfeldman/ProSST_PPI-main/few_shot_unscaled_output/few_shot_metrics_unscaled.json`
+= {"data_type":"unscaled_embeddings", after_fine_tuning pearson 0.264 / spearman 0.185}.
+My first DMS pass used ridge[D|S] bare = MUCH stronger (includes symmetric magnitude signal)
+-> made ProtBFF look marginal/worse on 9lyp/7kmg. FIXED: bare = train_model(Uf,Ur, nscores=1)
+= dual model on the single unscaled pooled embedding. Smoke: nscores=1 trains clean (0.497),
+NO NaN/degeneracy. dms_fewshot.py now writes bare(unscaled) + bare_ridge(reference). Old
+ridge-bare outputs -> tuning_v1/out/dms_ridge_bare/. DMS rerun = job 43468410.
+
+### Same fix resolves the broken Table-1 ablation rows
+scores1_all=0.031 (pathology) and emb1=NaN came from feeding 5 IDENTICAL blocks to the
+cross-attention (num_scores=5, tiled U). Correct "scores=1" = num_scores=1 on unscaled U
+(trains fine). TODO: redo ablation_baselines scores=1 row with num_scores=1. emb1 (embeddings=1,
+D=0 degenerate) still needs thought — maybe drop that row (redundant w/ baseline column).
+
+### LOMO (Fig 2C) alignment bug FIXED
+ESM-C cache is LEXICOGRAPHICALLY sorted (0,1,10,100,...) NOT master numeric order. Positional
+method-label join FAILED (assertion caught it). Fix: join by cache raw id == master #Pdb
+("<idx>_<PDB>"). 100% coverage, 11 methods. lomo.py fixed, rerun = Modal task bv1w9lljc.
+LESSON: ESM-C/ESM2/ESM3 caches are NOT in master row order — always join by id, never position.
+(ProSST cache IS in master order, which is why it worked there.)
+
+### Figures: publication-quality plotting infra
+tuning_v1/figstyle.py (Okabe-Ito palette, trimmed spines, panel letters), plot_figure2.py
+(A: MVA threshold sweep + competitor MVA-60 pts; B: reuse structural crop; C: LOMO bar+line),
+plot_figure3.py (A: size sweep kept; B-D: DMS dual). Output -> protbff_overleaf/figure_{2,3}_protbff_new.{png,pdf}.
+
+### Fig 2A threshold sweep (Modal protbff-thr): ESM-C+ProSST dual x 6 MVA thresholds (30-90%).
+### Loss sweep (Modal protbff-loss, ESM-C): mse/huber/mae/pearson/rank/ilddt-dualhead.

@@ -1,0 +1,9 @@
+/n/netscratch/shakhnovich_lab/Lab/jwang/ProtBFF/tuning_v1/baseline_mva.py:43: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+ESMC_baseline: N=6631 D=1152
+ESMC_baseline MVA-60 (ridge [D|S] baseline):
+  mean-of-folds  P=0.3103  S=0.2666  AUROC=0.6166
+===
+/n/netscratch/shakhnovich_lab/Lab/jwang/ProtBFF/tuning_v1/baseline_mva.py:43: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+SAPROT_baseline: N=6601 D=1280
+SAPROT_baseline MVA-60 (ridge [D|S] baseline):
+  mean-of-folds  P=0.2660  S=0.2308  AUROC=0.6074

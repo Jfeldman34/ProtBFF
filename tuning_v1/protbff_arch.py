@@ -68,7 +68,7 @@ class FullModel(nn.Module):
         self.ddg_predictor = PairReadout(c['reduced_dim'], c['hidden_dim'], c['mlp_dropout']*ds,
                                          c['num_hidden'], readout=c.get('readout', 'antisym'))
         self.ilddt_predictor = PairReadout(c['reduced_dim'], c['hidden_dim'], c['mlp_dropout']*ds,
-                                           c['num_hidden'], readout='antisym')
+                                           c['num_hidden'], readout=c.get('ilddt_readout', 'antisym'))
     def forward(self, xf, xr):
         xfp, xrp = self.pooling(xf), self.pooling(xr)
         return self.ddg_predictor(xfp, xrp), self.ilddt_predictor(xfp, xrp)
