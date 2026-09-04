@@ -1068,3 +1068,36 @@ plot_figure3.py (A: size sweep kept; B-D: DMS dual). Output -> protbff_overleaf/
 
 ### Fig 2A threshold sweep (Modal protbff-thr): ESM-C+ProSST dual x 6 MVA thresholds (30-90%).
 ### Loss sweep (Modal protbff-loss, ESM-C): mse/huber/mae/pearson/rank/ilddt-dualhead.
+
+## 2026-09-02 — Figure 3 REDONE via original fine-tuning protocol (from Jonathan's-Additions notebook)
+
+### KEY: original Fig 3 = fine-tune pretrained SKEMPI bases (NOT from-scratch)
+Checked `private/Jonathan's-Additions:figure_fodder/bloom_antibodies.ipynb`. Original protocol:
+- ProtBFF curve = FullModelCrossAttention (scaled 5-block, antisym (f-r)/2), base=
+  `AF3Complex/ProSST_Max_loss_all_splits/60_percent/fold_0_full_model.pth`, fine-tuned on X% DMS.
+- bare curve = 'Simple' = DDGPredictorSimple (plain MLP on max-pooled UNSCALED embedding), base=
+  `AF3Complex/prosst_no_scores/fold_0_model.pth`, fine-tuned.
+- Fine-tune lr=1e-5, 200 epochs, ratios 0-80%. My earlier dms_fewshot (from-scratch, dual bare) was WRONG.
+`tuning_v1/dms_finetune.py` = parametrized copy of that notebook cell (models/training verbatim,
+argparse config, embed_dim=input_dim//5 so ESM-C(5760)->1152 works, backward-compat ProSST 3840->768).
+VALIDATED: 9lyp ProSST reproduces original (ProtBFF 0.405 vs Simple 0.334 @80%; ace2 0.77).
+
+### ProSST DMS fine-tune DONE (all 3, correct): ace2 PBF 0.41->0.77 / Simple 0.24->0.61;
+9lyp 0.19->0.40 / 0.17->0.33; 7kmg 0.15->0.25 / 0.12->0.19. -> tuning_v1/out/dms_ft/{cx}_prosst/
+
+### ESM-C DMS pipeline (all recovered despite purge)
+- ESM-C is SEQUENCE-ONLY. Mutant seqs recovered: 7kmg/9lyp from surviving mutant PDBs
+  (jonathanfeldman/ProSST_PPI-main/bloom_antibodies/{cx}_cache/optimized); ace2 = ACE2 chain from
+  7W9I.pdb (downloaded RCSB) + RBD from bloom_combined.csv (wildtype_fasta/optimized_fasta by index).
+- data_pipeline/dms_esmc_rebuild.py: embed wt+mt full-complex seqs, store Xf=wt_emb-mt_emb (Xr=-Xf).
+  ace2/9lyp DONE, 7kmg running. tuning_v1/build_dms_scaled_cache.py -> {cx}_esmc_score_cache.npz.
+- dms_pretrain.py: pretrain ESM-C CA base (0.855) + Simple base (0.822) on SKEMPI. DONE.
+- ESM-C fine-tunes: ace2/9lyp running (43802897/8), 7kmg chained.
+
+### Figure 2A -> MVA threshold sweep (user: everything MVA not CD-HIT)
+threshold_perf_sweep.py: ProtBFF(dual)+bare(ridge[D|S]) per encoder per MVA threshold 30-90%.
+Modal app protbff-thrperf (modal_thr_perf.py) -> thr_perf_mva_{esmc,prosst}.json. RUNNING.
+Reverted earlier slope-chart Fig2A. figstyle.py + plot_figure2/3.py for beautiful assembly.
+
+### TODO when data lands: plot Fig2 (MVA sweep+structures+LOMO) + Fig3 (ProSST+ESM-C fine-tune),
+beautiful, then text pass (everything MVA), push.

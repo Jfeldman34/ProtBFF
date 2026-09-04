@@ -16,36 +16,41 @@ import matplotlib.image as mpimg
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out")
 OVL = os.path.join(HERE, "..", "..", "protbff_overleaf")
-# Original (homology-uncontrolled) split vs honest MVA-60, mean-of-folds Pearson.
-# Honest = measured this work; original = the benchmark's leaky-split values.
-SLOPE = {  # model: (original, honest, color, marker)
-    "ESM-C + ProtBFF":  (None,  0.469, CB["red"],    "o"),
-    "ProSST + ProtBFF": (0.514, 0.451, CB["orange"], "s"),
-    "ProMIM":           (0.486, 0.399, CB["green"],  "^"),
-    "RDE-Network":      (0.480, 0.393, CB["blue"],   "D"),
-    "DDAffinity":       (0.485, 0.340, CB["purple"], "v"),
-}
+THR = [30, 40, 50, 60, 80, 90, 100]   # 100% = no clustering (MVA effectively off -> leakage returns)
+ENC = {"esmc": ("ESM-C", CB["red"], "o"), "prosst": ("ProSST", CB["blue"], "s")}
 
 
-def panelA(ax):
-    x0, x1 = 0, 1
-    for name, (orig, hon, col, mk) in SLOPE.items():
-        if orig is not None:
-            ax.plot([x0, x1], [orig, hon], "-", color=col, marker=mk, markersize=8,
-                    markerfacecolor=col, markeredgecolor=col, linewidth=2.2)
-            ax.annotate(f"{name}  {orig:.3f}→{hon:.3f} ({hon - orig:+.3f})", (x1, hon),
-                        textcoords="offset points", xytext=(12, 0), va="center",
-                        fontsize=9.5, color=col, fontweight="bold")
-        else:  # ESM-C: honest only (new encoder, no original-split number)
-            ax.plot([x1], [hon], marker=mk, color=col, markersize=10, markerfacecolor=col)
-            ax.annotate(f"{name}  {hon:.3f}", (x1, hon), textcoords="offset points", xytext=(10, 0),
-                        va="center", fontsize=9.5, color=col, fontweight="bold")
-    ax.set_xlim(-0.25, 2.5); ax.set_xticks([x0, x1])
-    ax.set_xticklabels(["Original\n(homology-uncontrolled)", "MVA-60\n(homology-aware)"])
-    ax.set_ylabel("Pearson Correlation"); ax.set_ylim(0.30, 0.55)
-    ax.set_title("Benchmark performance collapses under leakage-corrected evaluation")
-    ax.grid(True, axis="y", alpha=0.5); ax.grid(False, axis="x")
-    panel_label(ax, "A", dx=-0.08)
+def panelA(axP, axS):
+    # ESM-C + ProtBFF (dual) vs ESM-C bare ridge (no ProtBFF), mean-of-folds +/- SEM, vs MVA threshold.
+    # 30-90% (homology controlled): flat -> honest, homology-independent.
+    # 100% (no clustering, MVA off): near-identical complexes leak back -> both jump = the leakage.
+    pf = json.load(open(os.path.join(OUT, "thr_perf_mva_esmc.json")))       # +ProtBFF
+    bare = json.load(open(os.path.join(OUT, "bare_esmc_mva.json")))         # true unscaled bare ridge
+    xs = [t for t in THR if str(t) in pf and str(t) in bare]
+    for key, ax, ylab, tit in [("r", axP, "Pearson Correlation", "Pearson"),
+                               ("s", axS, "Spearman Correlation", "Spearman")]:
+        # shade the 100% (no-clustering / leakage) region
+        if 100 in xs:
+            ax.axvspan(95, 103, color=CB["red"], alpha=0.06, zorder=0)
+            ax.axvline(95, color="0.6", ls=":", lw=1, zorder=1)
+        yp = [pf[str(t)][f"protbff_{key}"] for t in xs]
+        ype = [pf[str(t)].get(f"protbff_{key}_sem", 0) for t in xs]
+        yb = [bare[str(t)][f"bare_{key}"] for t in xs]
+        ybe = [bare[str(t)].get(f"bare_{key}_sem", 0) for t in xs]
+        ax.errorbar(xs, yp, yerr=ype, fmt="-o", color=CB["red"], label="ESM-C + ProtBFF",
+                    markerfacecolor=CB["red"], markersize=7, lw=2.2, capsize=3, zorder=5)
+        ax.errorbar(xs, yb, yerr=ybe, fmt="--s", color=CB["grey"], label="ESM-C (bare, no ProtBFF)",
+                    markerfacecolor="white", markeredgecolor=CB["grey"], markeredgewidth=1.6,
+                    markersize=7, lw=2.2, capsize=3, zorder=5)
+        ax.set_xlabel("MVA Sequence Identity Threshold (%)"); ax.set_ylabel(ylab)
+        ax.set_xticks(xs); ax.set_xticklabels([str(t) if t != 100 else "100\n(off)" for t in xs], fontsize=9)
+        ax.set_ylim(0.0, 0.7)
+        ax.set_title(tit, pad=8)
+    axP.legend(loc="lower left", fontsize=8.5)
+    for ax in (axP, axS):
+        ax.text(99, 0.02, "clustering off:\nleakage returns", ha="center", va="bottom",
+                fontsize=7.5, color=CB["red"])
+    panel_label(axP, "A")
 
 
 def panelC(ax):
@@ -82,10 +87,10 @@ def panelB(ax):
 def main():
     apply_style()
     fig = plt.figure(figsize=(14, 15))
-    gs = fig.add_gridspec(3, 1, height_ratios=[1.0, 0.85, 1.0], hspace=0.42)
-    panelA(fig.add_subplot(gs[0, 0]))
-    panelB(fig.add_subplot(gs[1, 0]))
-    panelC(fig.add_subplot(gs[2, 0]))
+    gs = fig.add_gridspec(3, 2, height_ratios=[1.0, 0.85, 1.0], hspace=0.42, wspace=0.28)
+    panelA(fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1]))
+    panelB(fig.add_subplot(gs[1, :]))
+    panelC(fig.add_subplot(gs[2, :]))
     base = os.path.join(OVL, "figure_2_protbff_new")
     for ext in ("png", "pdf"):
         fig.savefig(f"{base}.{ext}", bbox_inches="tight")

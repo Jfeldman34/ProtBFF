@@ -51,10 +51,9 @@ def build(merged_dir):
             np.array(Uf, np.float64), np.array(Ur, np.float64), np.array(ys, np.float64))
 
 
-def train_model(Xf, Xr, y, tr, te, D, nscores, seed):
-    """Train the ProtBFF architecture (dual readout) with `nscores` blocks.
-    nscores=5 -> scaled ProtBFF; nscores=1 -> unscaled embedding through the same model
-    (the original 'bare' baseline: biophysical scaling off)."""
+def train_model(Xf, Xr, y, tr, te, D, nscores, seed, readout='dual'):
+    """Train the ProtBFF architecture with `nscores` blocks and the given readout.
+    nscores=5 -> scaled ProtBFF; nscores=1 -> unscaled embedding through the same model."""
     torch.manual_seed(seed); np.random.seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # small val split from train for early stopping
@@ -62,7 +61,7 @@ def train_model(Xf, Xr, y, tr, te, D, nscores, seed):
         trn, val = train_test_split(tr, test_size=0.15, random_state=seed)
     else:
         trn, val = tr, tr
-    c = {**BASE, 'readout': 'dual', 'embed_dim': D, 'num_scores': nscores, 'epochs': 60}
+    c = {**BASE, 'readout': readout, 'embed_dim': D, 'num_scores': nscores, 'epochs': 60}
     y32 = y.astype(np.float32); il = np.zeros_like(y32)
     tl = make_loader(Xf, Xr, y32, il, trn, c['batch_size'], True)
     vl = make_loader(Xf, Xr, y32, il, val, c['batch_size'], False)
