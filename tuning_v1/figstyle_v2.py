@@ -37,7 +37,10 @@ HONEST = "#1baf7a"       # aqua/green = honest / improvement
 def apply_style(base=14):
     mpl.rcParams.update({
         "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "savefig.facecolor": SURFACE,
-        "font.family": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
+        # Nimbus Sans is a metric-compatible Helvetica clone available on the cluster;
+        # gives a consistent, standard publication look. (Arial/Helvetica omitted: not
+        # installed here, and listing them only spams findfont fallback warnings.)
+        "font.family": ["Nimbus Sans", "DejaVu Sans", "sans-serif"],
         "font.size": base, "axes.titlesize": base + 2, "axes.labelsize": base,
         "xtick.labelsize": base - 1, "ytick.labelsize": base - 1, "legend.fontsize": base - 2,
         "axes.spines.top": False, "axes.spines.right": False,

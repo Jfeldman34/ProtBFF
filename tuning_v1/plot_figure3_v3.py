@@ -25,7 +25,7 @@ def series(cx, enc, model):
     fr = sorted(r.keys(), key=lambda x: int(str(x).replace("pct", "")))
     x = [int(k.replace("pct", "")) for k in fr]
     y = [(r[k].get("metrics", r[k])).get("spearman_r") for k in fr]
-    keep = [(xi, yi) for xi, yi in zip(x, y) if xi >= 10]
+    keep = [(xi, yi) for xi, yi in zip(x, y) if xi >= 0]   # include 0% (zero-shot)
     return [a for a, _ in keep], [b for _, b in keep]
 
 
@@ -41,7 +41,7 @@ def dms_panel(ax, cx, title, letter, legend=False):
         ax.plot(xs, ys, "--", marker=mk, color=col, markerfacecolor="white",
                 markeredgecolor=col, lw=1.7, label=f"{ENCODER_LABEL[enc]} (bare)", zorder=3)
     ax.set_title(title); ax.set_xlabel("Training set size (%)")
-    ax.set_ylabel("Spearman correlation"); ax.set_xticks([10, 30, 50, 70])
+    ax.set_ylabel("Spearman correlation"); ax.set_xticks([0, 20, 40, 60, 80])
     ax.set_ylim(-0.02, 0.85)
     if legend:
         ax.legend(loc="upper left", fontsize=10)
@@ -76,7 +76,7 @@ def mean_panel(ax):
             ax.plot(xg, ym, ls, marker=mk, color=col, lw=2.2 if ls == "-" else 1.7,
                     markerfacecolor=fill, markeredgecolor=col, label=f"{ENCODER_LABEL[enc]} {tag}")
     ax.set_title("Mean over three binding partners"); ax.set_xlabel("Training set size (%)")
-    ax.set_ylabel("Spearman correlation"); ax.set_xticks([10, 30, 50, 70])
+    ax.set_ylabel("Spearman correlation"); ax.set_xticks([0, 20, 40, 60, 80])
     ax.set_ylim(-0.02, 0.7); ax.legend(loc="upper left", fontsize=10)
     panel_label(ax, "C")
 
@@ -87,8 +87,9 @@ def summary_panel(ax):
         col = ENCODER_COLOR[enc]
         lifts = []
         for cx, _ in DMS:
-            _, yc = series(cx, enc, "cross_attention"); _, ys = series(cx, enc, "simple")
-            lifts.append(np.mean(np.array(yc) - np.array(ys)) if yc else 0)
+            xc, yc = series(cx, enc, "cross_attention"); xs, ys = series(cx, enc, "simple")
+            fs = [c - s for xx, c, s in zip(xc, yc, ys) if xx >= 10]   # few-shot lift (exclude zero-shot)
+            lifts.append(np.mean(fs) if fs else 0)
         bars = ax.bar(x + (i - 0.5) * w, lifts, w, color=col, label=ENCODER_LABEL[enc], zorder=3)
         for xi, v in zip(x + (i - 0.5) * w, lifts):
             ax.text(xi, v + 0.004, f"+{v:.02f}", ha="center", va="bottom", fontsize=9, color=col)

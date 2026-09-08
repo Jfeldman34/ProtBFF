@@ -26,16 +26,28 @@ def _sweep(ax, kind, order, xlabels, title, highlight0=False):
         col, mk = ENCODER_COLOR[enc], ENCODER_MARKER[enc]
         xs, ys, es = [], [], []
         for i, t in enumerate(order):
-            if t in d:
+            if t == "100" and enc in decay:   # SHARED 'original / no-clustering' point (same in A & B)
+                v = decay[enc]["nosplit"]
+                ys.append(v["protbff_r"]); es.append(v.get("protbff_r_sem", 0)); xs.append(i)
+            elif t in d:
                 ys.append(d[t]["protbff_r"]); es.append(d[t].get("protbff_r_sem", 0)); xs.append(i)
-            elif t == "100" and kind == "mva" and enc in decay:   # original = random split
-                ys.append(decay[enc]["nosplit"]["protbff_r"]); es.append(decay[enc]["nosplit"].get("protbff_r_sem", 0)); xs.append(i)
         ax.errorbar(xs, ys, yerr=es, fmt="-" + mk, color=col, capsize=3,
                     label=f"{ENCODER_LABEL[enc]} + ProtBFF")
+    # ESM-C bare (no ProtBFF) overlay -> shows the ProtBFF gain across the sweep
+    bare = _load("bare_esmc_mva.json" if kind == "mva" else "bare_esmc_cdhit.json")
+    bmva = _load("bare_esmc_mva.json")
+    col = ENCODER_COLOR["esmc"]; xs, ys, es = [], [], []
+    for i, t in enumerate(order):
+        src = bmva if (t == "100" and "100" in bmva) else bare   # shared no-clustering original
+        if t in src:
+            ys.append(src[t]["bare_r"]); es.append(src[t].get("bare_r_sem", 0)); xs.append(i)
+    ax.errorbar(xs, ys, yerr=es, fmt="--o", color=col, markerfacecolor="white",
+                markeredgecolor=col, markeredgewidth=1.6, lw=1.7, capsize=3,
+                label="ESM-C (bare)", zorder=4)
     if highlight0:
         ax.axvspan(-0.4, 0.4, color=LEAKY_WASH, zorder=0)
     ax.set_xticks(range(len(order))); ax.set_xticklabels(xlabels)
-    ax.set_ylabel("Pearson correlation (mean-of-folds)"); ax.set_ylim(0.30, 0.68)
+    ax.set_ylabel("Pearson correlation (mean-of-folds)"); ax.set_ylim(0.20, 0.68)
     ax.set_title(title)
 
 
