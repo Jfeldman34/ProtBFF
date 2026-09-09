@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
 LEAKY_WASH = (0.85, 0.30, 0.26, 0.06)
-ENCS = ["esmc", "prosst"]
+ENCS = ["esmc", "prosst", "esm2", "esm3", "saprot"]   # all five encoders -> show all-model decay
 
 
 def _load(fn):

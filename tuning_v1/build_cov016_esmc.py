@@ -105,7 +105,7 @@ def main():
         me = embed(model, rmut + ab, device)
         n = min(len(wt_emb), len(me), Lc); dfd = (wt_emb[:n] - me[:n]).astype(np.float32)
         sl = slice(0, n)
-        np.savez(f"{MERGED}/{i}.npz", keys=keys[:n], index=np.full(n, i, np.int64),
+        np.savez(f"{MERGED}/merged_{i}.npz", keys=keys[:n], index=np.full(n, i, np.int64),
                  interface=INTER[sl][None], burial=BUR[sl][None], lddt=LDDT[sl][None].astype(np.float32),
                  sasa=SASA[sl][None], dihedral=DIH[sl][None], Xf=dfd, Xr=(-dfd), ddG=np.float64(y[i]))
         if i % 400 == 0:
