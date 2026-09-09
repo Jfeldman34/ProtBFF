@@ -64,7 +64,7 @@ def main():
         fas.append(roc_auc_score(lab, p) if len(np.unique(lab)) > 1 else np.nan)
         pt += list(y[te]); pp += list(p)
     print(f"{args.label} MVA-60 (ridge [D|S] baseline):")
-    print(f"  mean-of-folds  P={np.mean(frs):.4f}  S={np.mean(fss):.4f}  AUROC={np.nanmean(fas):.4f}")
+    print(f"  mean-of-folds  P={np.mean(frs):.4f} +/- {np.std(frs):.4f}  S={np.mean(fss):.4f} +/- {np.std(fss):.4f}  AUROC={np.nanmean(fas):.4f}")
     print(f"  pooled         P={pearsonr(pt,pp)[0]:.4f}  S={spearmanr(pt,pp)[0]:.4f}")
 
 
