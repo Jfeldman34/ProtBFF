@@ -11,7 +11,9 @@ import matplotlib.pyplot as plt
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
 LEAKY_WASH = (0.85, 0.30, 0.26, 0.06)
-ENCS = ["esmc", "prosst", "esm2", "esm3", "saprot"]   # all five encoders -> show all-model decay
+ENCS = ["esmc"]                       # ESM-C only; a trained non-PLM competitor is overlaid
+COMPETITOR = "#6b6a66"                 # RDE-Network (specialized non-PLM deep predictor)
+RDE_LEAKY, RDE_MVA60, RDE_MVA60_SEM = 0.480, 0.393, 0.087 / (10 ** 0.5)   # SEM = SD/sqrt(10)
 
 
 def _load(fn):
@@ -51,10 +53,24 @@ def _sweep(ax, kind, order, xlabels, title, highlight0=False):
     ax.set_title(title)
 
 
+def _overlay_rde(ax, kind):
+    """RDE-Network, a trained non-PLM specialized predictor, evaluated at its leaky benchmark
+    and the honest MVA-60 split (the only two splits it was trained on). Shows the leakage
+    inflation is not specific to the PLM: a different model family declines the same way."""
+    if kind == "mva":                              # leaky original (x=0) -> MVA-60 (x=3)
+        ax.errorbar([0, 3], [RDE_LEAKY, RDE_MVA60], yerr=[0, RDE_MVA60_SEM], fmt=":X",
+                    color=COMPETITOR, capsize=3, markersize=10, lw=1.9,
+                    label="RDE-Network (competitor)", zorder=5)
+    else:                                          # CD-HIT: leaky benchmark at 60% (x=3)
+        ax.errorbar([3], [RDE_LEAKY], fmt="X", color=COMPETITOR, markersize=10,
+                    label="RDE-Network (competitor, leaky)", zorder=5)
+
+
 def panelA(ax):
     _sweep(ax, "mva", ["100", "90", "80", "60", "50", "40", "30"],
            ["original\n(no align.)", "90", "80", "60", "50", "40", "30"],
            "Original → MVA identity sweep", highlight0=True)
+    _overlay_rde(ax, "mva")
     ax.set_xlabel("MVA sequence-identity threshold (%)")
     ax.legend(loc="upper right", fontsize=10); panel_label(ax, "A")
 
@@ -62,6 +78,7 @@ def panelA(ax):
 def panelB(ax):
     _sweep(ax, "cdhit", ["100", "95", "80", "60", "40"],
            ["original\n(100)", "95", "80", "60", "40"], "CD-HIT (leaky) identity sweep")
+    _overlay_rde(ax, "cdhit")
     ax.set_xlabel("CD-HIT sequence-identity threshold (%)")
     ax.legend(loc="upper right", fontsize=10); panel_label(ax, "B")
 
