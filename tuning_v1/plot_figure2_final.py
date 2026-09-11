@@ -13,6 +13,7 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
 LEAKY_WASH = (0.85, 0.30, 0.26, 0.06)
 ENCS = ["esmc"]                       # ESM-C only; a trained non-PLM competitor is overlaid
 COMPETITOR = "#6b6a66"                 # RDE-Network (specialized non-PLM deep predictor)
+RDELIN = "#b8873f"                     # RDE-Linear (frozen entropy features, ridge head refit per fold)
 RDE_LEAKY, RDE_MVA60, RDE_MVA60_SEM = 0.480, 0.393, 0.087 / (10 ** 0.5)   # SEM = SD/sqrt(10)
 
 
@@ -49,8 +50,25 @@ def _sweep(ax, kind, order, xlabels, title, highlight0=False):
     if highlight0:
         ax.axvspan(-0.4, 0.4, color=LEAKY_WASH, zorder=0)
     ax.set_xticks(range(len(order))); ax.set_xticklabels(xlabels)
-    ax.set_ylabel("Pearson correlation (mean-of-folds)"); ax.set_ylim(0.20, 0.68)
+    ax.set_ylabel("Pearson correlation (mean-of-folds)"); ax.set_ylim(0.08, 0.68)
     ax.set_title(title)
+
+
+def _overlay_rde_linear(ax, kind, order):
+    """RDE-Linear: RDE's frozen (split-independent) entropy features with a ridge head refit
+    per fold, so it CAN be re-evaluated at every threshold (seconds per split). A cheaply
+    retrainable trained competitor that plots at every point the encoder sweep does."""
+    d = _load("rde_linear_sweep2.json")
+    xs, ys, es = [], [], []
+    for i, t in enumerate(order):
+        k = f"{kind}_{t}"
+        if k in d:
+            xs.append(i); ys.append(d[k]["mean_r"]); es.append(d[k].get("sem_r", 0))
+    if not xs:
+        return
+    ax.errorbar(xs, ys, yerr=es, fmt="-.d", color=RDELIN, capsize=3, markersize=7, lw=1.7,
+                markerfacecolor="white", markeredgecolor=RDELIN, markeredgewidth=1.5,
+                label="RDE-Linear (competitor)", zorder=4)
 
 
 def _overlay_rde(ax, kind):
@@ -71,6 +89,7 @@ def panelA(ax):
            ["original\n(no align.)", "90", "80", "60", "50", "40", "30"],
            "Original → MVA identity sweep", highlight0=True)
     _overlay_rde(ax, "mva")
+    _overlay_rde_linear(ax, "mva", ["100", "90", "80", "60", "50", "40", "30"])
     ax.set_xlabel("MVA sequence-identity threshold (%)")
     ax.legend(loc="upper right", fontsize=10); panel_label(ax, "A")
 
@@ -79,6 +98,7 @@ def panelB(ax):
     _sweep(ax, "cdhit", ["100", "95", "80", "60", "40"],
            ["original\n(100)", "95", "80", "60", "40"], "CD-HIT (leaky) identity sweep")
     _overlay_rde(ax, "cdhit")
+    _overlay_rde_linear(ax, "cdhit", ["100", "95", "80", "60", "40"])
     ax.set_xlabel("CD-HIT sequence-identity threshold (%)")
     ax.legend(loc="upper right", fontsize=10); panel_label(ax, "B")
 
